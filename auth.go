@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"crypto/tls"
 )
 
 type myjar struct {
@@ -95,9 +96,11 @@ func (d *DigestHeaders) ApplyAuth(req *http.Request) {
 }
 
 // Auth authenticates against a given URI
-func (d *DigestHeaders) Auth(username string, password string, uri string) (*DigestHeaders, error) {
+func (d *DigestHeaders) Auth(username string, password string, uri string, tlsconfig *tls.Config) (*DigestHeaders, error) {
 
-	client := &http.Client{}
+	transport := &http.Transport{TLSClientConfig: tlsconfig}
+	client := &http.Client{Transport: transport}
+
 	jar := &myjar{}
 	jar.jar = make(map[string][]*http.Cookie)
 	client.Jar = jar
@@ -106,10 +109,12 @@ func (d *DigestHeaders) Auth(username string, password string, uri string) (*Dig
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if resp.StatusCode == 401 {
 
 		authn := digestAuthParams(resp)
@@ -132,6 +137,7 @@ func (d *DigestHeaders) Auth(username string, password string, uri string) (*Dig
 
 		req, err = http.NewRequest("GET", uri, nil)
 		d.ApplyAuth(req)
+
 		resp, err = client.Do(req)
 		if err != nil {
 			log.Fatal(err)
