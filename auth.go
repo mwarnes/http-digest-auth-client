@@ -82,7 +82,7 @@ func (d *DigestHeaders) ApplyAuth(req *http.Request) {
 	d.Nc += 0x1
 	d.Cnonce = randomKey()
 	d.Method = req.Method
-	d.Path = req.URL.RequestURI()
+	d.Path = req.URL.Path
 	d.digestChecksum()
 	response := h(strings.Join([]string{d.HA1, d.Nonce, fmt.Sprintf("%08x", d.Nc),
 		d.Cnonce, d.Qop, d.HA2}, ":"))
