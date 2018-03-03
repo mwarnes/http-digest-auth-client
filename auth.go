@@ -91,7 +91,6 @@ func (d *DigestHeaders) ApplyAuth(req *http.Request) {
 	if d.Opaque != "" {
 		AuthHeader = fmt.Sprintf(`%s, opaque="%s"`, AuthHeader, d.Opaque)
 	}
-	fmt.Printf("%v\n", AuthHeader)
 	req.Header.Set("Authorization", AuthHeader)
 }
 
